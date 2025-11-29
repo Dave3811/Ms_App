@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2b6cb0;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        hr {
+            margin: 12px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>ESTIMATION</h1>
+
+    <div class="section box">
+        <p><span class="label">Numéro :</span> {{numero}}</p>
+        <p><span class="label">Date :</span> {{date_estimation}}</p>
+        <p><span class="label">Créée par :</span> {{utilisateur}}</p>
+    </div>
+
+    <div class="section box">
+        <p><span class="label">Client :</span> {{client}}</p>
+        <p><span class="label">Adresse :</span> {{adresse}}</p>
+        <p><span class="label">Téléphone :</span> {{telephone}}</p>
+        <p><span class="label">Courriel :</span> {{couriel}}</p>
+    </div>
+
+    <div class="section box">
+        <p><span class="label">Service :</span> {{service}}</p>
+        <p><span class="label">Superficie :</span> {{superficie}} pieds carré</p>
+        <p><span class="label">Description :</span><br>{{description}}</p>
+    </div>
+
+    {% if extraprix != "0.00" %}
+    <div class="section box">
+        <p class="label">Extras :</p>
+        {% if extra1 %}<p>- Taille de haie</p>{% endif %}
+        {% if extra2 %}<p>- Découpage</p>{% endif %}
+        {% if exdescription %}<p>- {{exdescription}}</p>{% endif %}
+        <p><span class="label">Coût des extras :</span> {{extraprix}}$</p>
+    </div>
+    {% endif %}
+
+    <div class="section box">
+        <p><span class="label">Montant travaux :</span> {{montant}}$</p>
+        <p><span class="label">Frais de déplacement :</span> {{deplacement}}$</p>
+
+        <hr>
+
+        <p><span class="label">Sous-total :</span> {{sous_total}}$</p>
+        <p><span class="label">Taxes (TPS + TVQ) :</span> {{taxes}}$</p>
+
+        <p style="font-size:18px;"><b>TOTAL :</b> {{total}}$</p>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+# Secrets
+.secrets.toml
+.streamlit/secrets.toml
+client_secret.json
+token.json
+
+# Python
+__pycache__/
+.env
