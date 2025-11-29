@@ -8,7 +8,7 @@ st.set_page_config(
     layout="centered"
 )
 
-
+st.write("Secret loaded : ", st.secrets.keys())
 # Authentification
 if not check_password():
     st.stop()
