@@ -1,62 +1,57 @@
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
+import streamlit as st
 from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+import json
 
-from io import BytesIO
-import os
-
-
-SCOPES = ["https://www.googleapis.com/auth/drive"]
-
-# ✅ Ton dossier MS
-FOLDER_ID_MS = "1wXZqyjTEEOEKORsYllRmLryiES6R9UZe"
+SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 
 
 def get_drive_service():
     creds = None
 
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    if "google_credentials" in st.session_state:
+        creds = Credentials.from_authorized_user_info(
+            st.session_state["google_credentials"],
+            SCOPES
+        )
 
-    if not creds or not creds.valid:
+    if not creds:
+        flow = InstalledAppFlow.from_client_config(
+            st.secrets["OAUTH_CLIENT_SECRET"],
+            SCOPES
+        )
+        creds = flow.run_console()
 
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "client_secret.json",
-                SCOPES
-            )
-            creds = flow.run_local_server(port=0)
-
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
+        st.session_state["google_credentials"] = json.loads(creds.to_json())
 
     return build("drive", "v3", credentials=creds)
 
 
-def upload_pdf_to_drive(pdf_bytes: bytes, filename: str):
-
+def upload_pdf_to_drive(pdf_bytes: bytes, filename: str, folder_id=None):
     service = get_drive_service()
+
+    file_metadata = {"name": filename}
+    if folder_id:
+        file_metadata["parents"] = [folder_id]
+
+    from googleapiclient.http import MediaIoBaseUpload
+    from io import BytesIO
 
     media = MediaIoBaseUpload(
         BytesIO(pdf_bytes),
         mimetype="application/pdf",
-        resumable=True
+        resumable=False,
     )
 
-    metadata = {
-        "name": filename,
-        "parents": [FOLDER_ID_MS]
-    }
-
-    file = service.files().create(
-        body=metadata,
-        media_body=media,
-        fields="id, webViewLink"
-    ).execute()
+    file = (
+        service.files()
+        .create(
+            body=file_metadata,
+            media_body=media,
+            fields="id, webViewLink"
+        )
+        .execute()
+    )
 
     return file["webViewLink"]
