@@ -4,7 +4,6 @@ import datetime
 from Utils.Auth import check_password
 from Utils.Sheets import add_estimation
 from Utils.Pdf import generate_estimation_pdf
-from Utils.Drive import upload_pdf_to_drive
 
 
 # ---------- AUTH ----------
@@ -129,6 +128,4 @@ if submitted:
         mime="application/pdf"
     )
 
-
     st.success("✅ PDF sauvegardé dans Google Drive")
-
