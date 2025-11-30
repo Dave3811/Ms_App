@@ -7,4 +7,3 @@ jinja2
 pdfkit
 reportlab
 pytz
-IronPDF
