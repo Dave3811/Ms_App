@@ -1,4 +1,3 @@
-import json
 import streamlit as st
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -12,33 +11,30 @@ SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 def get_drive_service():
     creds = None
 
-    # Reuse session credentials if already logged in
+    # Reuse credentials if already stored
     if "google_credentials" in st.session_state:
         creds = Credentials.from_authorized_user_info(
-            st.session_state["google_credentials"],
-            SCOPES
+            st.session_state["google_credentials"], SCOPES
         )
 
-    # First login
     if not creds:
-        # ✅ Convert secrets TEXT -> DICT
-        oauth_config = json.loads(st.secrets["OAUTH_CLIENT_SECRET"])
+        # ✅ Secrets already parsed as dict
+        oauth_config = st.secrets["OAUTH_CLIENT_SECRET"]
 
         flow = InstalledAppFlow.from_client_config(
             oauth_config,
             SCOPES
         )
 
-        # For Streamlit Cloud, interactive login in console works
         creds = flow.run_console()
 
-        # Store creds for later reuse
-        st.session_state["google_credentials"] = json.loads(creds.to_json())
+        st.session_state["google_credentials"] = oauth_config = st.session_state["google_credentials"] = oauth_config = json.loads(
+            creds.to_json())  # store serialized credentials
 
     return build("drive", "v3", credentials=creds)
 
 
-def upload_pdf_to_drive(pdf_bytes: bytes, filename: str, folder_id=None):
+def upload_pdf_to_drive(pdf_bytes, filename, folder_id=None):
     service = get_drive_service()
 
     metadata = {"name": filename}
@@ -48,13 +44,13 @@ def upload_pdf_to_drive(pdf_bytes: bytes, filename: str, folder_id=None):
     media = MediaIoBaseUpload(
         BytesIO(pdf_bytes),
         mimetype="application/pdf",
-        resumable=False
+        resumable=False,
     )
 
     file = service.files().create(
         body=metadata,
         media_body=media,
-        fields="id, webViewLink"
+        fields="webViewLink,id"
     ).execute()
 
     return file["webViewLink"]
