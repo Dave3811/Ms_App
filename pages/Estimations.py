@@ -3,7 +3,7 @@ import datetime
 
 from Utils.Auth import check_password
 from Utils.Sheets import add_estimation
-from Utils.Pdf import generate_estimation_pdf
+from Utils.Pdf import generate_estimation_html
 
 
 # ---------- AUTH ----------
@@ -119,11 +119,13 @@ if submitted:
     st.success("✅ Estimation enregistrée dans Google Sheets")
 
     # ---------- PDF ----------
-    pdf_bytes = generate_estimation_pdf(data)
+    html = generate_estimation_html(data)
+
+    html_bytes = html.encode("utf-8")
 
     st.download_button(
-        "📄 Télécharger l'estimation PDF",
-        pdf_bytes,
-        file_name=f"{numero}.pdf",
-        mime="application/pdf"
+        "📄 Télécharger l'estimation (HTML)",
+        html_bytes,
+        file_name=f"{numero}.html",
+        mime="text/html"
     )
