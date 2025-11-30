@@ -4,6 +4,6 @@ google-auth
 google-auth-oauthlib
 google-api-python-client
 jinja2
-weasyprint
+pdfkit
 reportlab
 pytz
