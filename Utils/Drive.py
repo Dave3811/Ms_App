@@ -32,25 +32,3 @@ def get_drive_service():
             creds.to_json())  # store serialized credentials
 
     return build("drive", "v3", credentials=creds)
-
-
-def upload_pdf_to_drive(pdf_bytes, filename, folder_id=None):
-    service = get_drive_service()
-
-    metadata = {"name": filename}
-    if folder_id:
-        metadata["parents"] = [folder_id]
-
-    media = MediaIoBaseUpload(
-        BytesIO(pdf_bytes),
-        mimetype="application/pdf",
-        resumable=False,
-    )
-
-    file = service.files().create(
-        body=metadata,
-        media_body=media,
-        fields="webViewLink,id"
-    ).execute()
-
-    return file["webViewLink"]

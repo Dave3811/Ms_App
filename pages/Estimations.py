@@ -129,8 +129,6 @@ if submitted:
         mime="application/pdf"
     )
 
-    # ---------- DRIVE ----------
-    link = upload_pdf_to_drive(pdf_bytes, filename=f"{numero}.pdf")
 
     st.success("✅ PDF sauvegardé dans Google Drive")
-    st.markdown(f"🔗 [Ouvrir le PDF dans Drive]({link})")
+
