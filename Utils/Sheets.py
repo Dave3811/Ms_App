@@ -68,3 +68,9 @@ def add_estimation(data: dict):
 def add_facture(data: dict):
     sheet = get_factures_sheet()
     sheet.append_row(list(data.values()))
+
+
+def get_estimations():
+    sheet = get_sheet()
+    records = sheet.get_all_records()
+    return records
