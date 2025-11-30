@@ -127,5 +127,3 @@ if submitted:
         file_name=f"{numero}.pdf",
         mime="application/pdf"
     )
-
-    st.success("✅ PDF sauvegardé dans Google Drive")
