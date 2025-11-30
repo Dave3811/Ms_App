@@ -6,32 +6,46 @@ from Utils.OAuth import SCOPES
 
 # ---------------- OAuth Callback Handler ----------------
 
-if "code" in st.query_params:
+SCOPES = ["https://www.googleapis.com/auth/drive"]
+
+
+def handle_oauth_callback():
+    params = st.experimental_get_query_params()
+
+    if "code" not in params:
+        return False
+
+    code = params["code"][0]
 
     flow = Flow.from_client_config(
         {
             "web": {
                 "client_id": st.secrets["OAUTH"]["CLIENT_ID"],
                 "client_secret": st.secrets["OAUTH"]["CLIENT_SECRET"],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
                 "redirect_uris": [st.secrets["OAUTH"]["REDIRECT_URI"]],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token"
             }
         },
-        scopes=SCOPES,
-        state=st.session_state.get("oauth_state"),
         redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"],
+        scopes=SCOPES
     )
 
-    flow.fetch_token(code=st.query_params["code"])
+    flow.fetch_token(code=code)
 
-    st.session_state["user_creds"] = flow.credentials.to_authorized_user_info()
+    creds = flow.credentials
 
+    st.session_state["google_creds"] = creds
+
+    # Nettoyage de l'URL
     st.experimental_set_query_params()
-    st.rerun()
+
+    return True
 
 # --------------------------------------------------------
 
+
+handle_oauth_callback()
 
 st.set_page_config(
     page_title="M&S Déneigement et Gazon",
