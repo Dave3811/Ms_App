@@ -18,7 +18,7 @@ def get_drive_service():
 
     if not creds:
         flow = InstalledAppFlow.from_client_config(
-            st.secrets["OAUTH_CLIENT_SECRET"],
+            st.secrets[["OAUTH"]["OAUTH_CLIENT_SECRET"]],
             SCOPES
         )
         creds = flow.run_console()
