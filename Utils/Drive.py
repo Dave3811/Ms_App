@@ -1,27 +1,22 @@
-import streamlit as st
-from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 from io import BytesIO
+import streamlit as st
 
-SCOPES = ["https://www.googleapis.com/auth/drive"]
-
-
-def get_drive_service():
-    creds = Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=SCOPES
-    )
-
-    return build("drive", "v3", credentials=creds)
+from Utils.OAuth import get_user_credentials
 
 
-def upload_html_to_drive(html: str, filename: str, folder_id: str):
-    service = get_drive_service()
+def upload_html_user_drive(html: str, filename: str):
+
+    # Récupérer les credentials OAuth de l'utilisateur connecté
+    creds = get_user_credentials()
+
+    # Créer le service Google Drive
+    service = build("drive", "v3", credentials=creds)
 
     file_metadata = {
         "name": filename,
-        "parents": [folder_id],
+        "parents": [st.secrets["DRIVE"]["FOLDER_ID"]],
         "mimeType": "text/html"
     }
 

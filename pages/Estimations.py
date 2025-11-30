@@ -4,7 +4,7 @@ import datetime
 from Utils.Auth import check_password
 from Utils.Sheets import add_estimation
 from Utils.Pdf import generate_estimation_html
-from Utils.Drive import upload_html_to_drive
+from Utils.Drive import upload_html_user_drive
 # ---------- AUTH ----------
 if not check_password():
     st.stop()
@@ -132,12 +132,10 @@ if submitted:
     html = generate_estimation_html(data)
 
     # Sauvegarde Drive
-    drive_url = upload_html_to_drive(
+    link = upload_html_user_drive(
         html,
-        filename=f"{numero}.html",
-        folder_id=st.secrets["DRIVE"]["FOLDER_ID"]
+        filename=f"{numero}.html"
     )
 
-    st.success("✅ Estimation sauvegardée dans Google Drive")
-
-    st.markdown(f"📁 [Ouvrir le fichier dans Drive]({drive_url})")
+    st.success("✅ Estimation sauvegardée dans le dossier MS")
+    st.markdown(f"📁 [Ouvrir le fichier]({link})")
