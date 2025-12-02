@@ -2,6 +2,7 @@ import streamlit as st
 from Utils.Auth import check_password
 from Utils.OAuth import get_user_credentials
 from Utils.Drive import create_empty_file
+from Utils.OAuth import login_google
 
 # =================== CONFIG ===================
 
@@ -23,7 +24,9 @@ st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
 
 
 # Zone de test
-
+if "google_creds" not in st.session_state:
+    login_google()
+    st.stop()
 
 # Forcer login Google
 get_user_credentials()
