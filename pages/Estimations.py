@@ -75,7 +75,7 @@ with st.form("estimation_form"):
     description = st.text_area("Description du travail")
 
     montant = st.number_input(
-        "Montant principal ($)",
+        "Montant du travail ($)",
         min_value=superficie * 1.50,
         step=1.00
     )
