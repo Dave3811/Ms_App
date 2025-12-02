@@ -46,7 +46,7 @@ def add_estimation(data):
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         data["numero"], data["utilisateur"], data["client"], data["adresse"],
-        data["telephone"], data["courriel"], data["service"], data["superficie"],
+        data["telephone"], data["couriel"], data["service"], data["superficie"],
         data["description"], data["montant"], data["taxes"], data["total"],
         data["date_estimation"], "PENDING"
     ))
