@@ -79,7 +79,7 @@ for f in factures:
         }
 
         html_file = generate_invoice_html(
-            "templates/facture.html",
+            "templates/factures.html",
             replacements
         )
 
