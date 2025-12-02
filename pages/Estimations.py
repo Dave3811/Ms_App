@@ -4,7 +4,6 @@ import datetime
 from Utils.Auth import check_password
 from Utils.Sheets import add_estimation
 from Utils.Pdf import generate_estimation_html
-from Utils.Drive import upload_html_to_drive
 # ---------- AUTH ----------
 if not check_password():
     st.stop()
