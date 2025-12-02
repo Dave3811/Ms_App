@@ -23,7 +23,7 @@ st.title("🏠 Tableau de bord M&S")
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
 
 # Forcer login Google
-get_user_credentials()
+#get_user_credentials()
 
 # Zone de test
 if "google_creds" not in st.session_state:
