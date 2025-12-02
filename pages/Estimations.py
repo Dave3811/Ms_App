@@ -63,6 +63,10 @@ with st.form("estimation_form"):
         step=10
     )
 
+    st.title("FRÉQUENCE")
+    semaine = st.checkbox("Semaine")
+    semainex2 = st.checkbox("2 Semaines")
+
     description = st.text_area("Description du travail")
 
     montant = st.number_input(
