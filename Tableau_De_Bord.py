@@ -1,8 +1,7 @@
 import streamlit as st
 from Utils.Auth import check_password
-from Utils.OAuth import get_user_credentials
-from Utils.Drive import create_empty_file
 from Utils.OAuth import login_google
+from Utils.Drive import create_empty_file
 
 # =================== CONFIG ===================
 
@@ -17,19 +16,20 @@ st.set_page_config(
 if not check_password():
     st.stop()
 
+# ========= AUTH GOOGLE =========
+
+if "google_creds" not in st.session_state:
+    login_google()
+    st.stop()
+
 # ================= INTERFACE =================
 
 st.title("🏠 Tableau de bord M&S")
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
 
-# Forcer login Google
-get_user_credentials()
+st.success("✅ Connexion Google établie")
 
-# Zone de test
-if "google_creds" not in st.session_state:
-    login_google()
-    st.stop()
-
+# ================= TEST DRIVE =================
 
 st.title("🧪 Test création fichier")
 
@@ -39,5 +39,4 @@ if st.button("Créer fichier vide"):
     st.success("✅ Fichier vide créé dans le dossier MS")
     st.markdown(f"🔗 [Ouvrir le fichier]({link})")
 
-st.success("✅ Connexion M&S active")
 st.info("Les fichiers seront sauvegardés automatiquement dans le Drive M&S.")
