@@ -4,8 +4,8 @@ import tempfile
 
 def generate_invoice_html(template_path, replacements):
 
-    # On force la racine du projet, peu importe où Streamlit démarre
-    project_root = Path(__file__).resolve().parents[1]
+    # Racine du projet = le dossier où se trouve app.py
+    project_root = Path.cwd()
 
     template_file = project_root / template_path
 
