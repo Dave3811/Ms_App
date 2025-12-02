@@ -13,4 +13,4 @@ if st.sidebar.button("🚪 Déconnexion"):
     st.session_state["username"] = None
     st.rerun()
 st.title("Gestion des paramètres")
-st.chat_message("ai")
+st.color_picker("Color")
