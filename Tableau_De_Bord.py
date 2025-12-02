@@ -79,6 +79,8 @@ for title, status in sections.items():
 
             st.write(f"Total : {total} $")
 
+            '''TODO Si le client se désiste ou s'il change d'idéé être capable
+            de changer l'estimations de refusée à acceptée ou l'inverse'''
             if status == "PENDING":
 
                 col1, col2 = st.columns(2)
