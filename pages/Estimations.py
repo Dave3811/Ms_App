@@ -63,6 +63,11 @@ with st.form("estimation_form"):
         step=10
     )
 
+#TODO
+# Gérer le prix selon la fréquence. 
+# Semaine de mi-mai à mi-octobre
+# Rajouter dans estimations la fréquence de passage (1semaine ou 2semaine)
+
     st.title("FRÉQUENCE")
     semaine = st.checkbox("Semaine")
     semainex2 = st.checkbox("2 Semaines")
