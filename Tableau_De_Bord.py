@@ -1,5 +1,6 @@
 import streamlit as st
 from Utils.Auth import check_password
+from Utils.OAuth import get_user_credentials
 from Utils.Drive import create_empty_file
 
 # =================== CONFIG ===================
@@ -18,13 +19,22 @@ if not check_password():
 # ================= INTERFACE =================
 
 st.title("🏠 Tableau de bord M&S")
-
-if st.button("🧪 TEST Drive"):
-    link = create_empty_file("TEST_M_S.txt")
-    st.success("✅ Fichier créé avec succès")
-    st.write("Lien :", link)
-
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
+
+
+# Zone de test
+
+
+# Forcer login Google
+get_user_credentials()
+
+st.title("🧪 Test création fichier")
+
+if st.button("Créer fichier vide"):
+    link = create_empty_file("TEST_M_S.txt")
+
+    st.success("✅ Fichier vide créé dans le dossier MS")
+    st.markdown(f"🔗 [Ouvrir le fichier]({link})")
 
 st.success("✅ Connexion M&S active")
 st.info("Les fichiers seront sauvegardés automatiquement dans le Drive M&S.")

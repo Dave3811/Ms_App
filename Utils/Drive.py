@@ -1,16 +1,18 @@
 import streamlit as st
-from google.oauth2.service_account import Credentials
+from io import BytesIO
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
 def get_drive_service():
 
-    creds = Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=SCOPES
+    if "user_creds" not in st.session_state:
+        raise Exception("Aucune session Google active")
+
+    creds = Credentials.from_authorized_user_info(
+        st.session_state["user_creds"], SCOPES
     )
 
     return build("drive", "v3", credentials=creds)
@@ -27,12 +29,9 @@ def create_empty_file(filename: str):
         "mimeType": "text/plain",
     }
 
-    try:
-        file = service.files().create(
-            body=file_metadata,
-            fields="id, webViewLink"
-        ).execute()
-    except Exception as e:
-        raise Exception(f"❌ ERREUR Drive test : {e}")
+    file = service.files().create(
+        body=file_metadata,
+        fields="id, webViewLink",
+    ).execute()
 
     return file["webViewLink"]
