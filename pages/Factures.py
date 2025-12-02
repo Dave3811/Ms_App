@@ -3,6 +3,9 @@ import streamlit as st
 from Utils.Database import get_factures, init_db
 from Utils.html_invoice import generate_invoice_html
 from Utils.Auth import check_password
+from pathlib import Path
+st.write("CWD:", Path.cwd())
+st.write("Contenu de templates/ :", list(Path("templates").glob("*")))
 
 
 # ---------- AUTH ----------
