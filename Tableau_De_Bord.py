@@ -26,7 +26,6 @@ sections = {
 for name, status in sections.items():
 
     st.subheader(name)
-
     data = get_estimations(status)
 
     if not data:
@@ -35,7 +34,8 @@ for name, status in sections.items():
 
     for e in data:
 
-        total = e[-2]   # avant-dernier champ = total
+        total = e[-2]   # ✅ total sécurisé
+
         with st.expander(f"#{e[1]} — {e[3]} — {total} $"):
 
             st.write(f"Client : {e[3]}")
@@ -44,7 +44,7 @@ for name, status in sections.items():
             st.write(f"Description : {e[9]}")
             st.write(f"Montant : {e[10]} $")
             st.write(f"Extras : {e[11] or ''} / {e[12] or ''}")
-            st.write(f"Total : {e[17]} $")
+            st.write(f"Total : {total} $")  # ✅ plus de crash
 
             if status == "PENDING":
 
