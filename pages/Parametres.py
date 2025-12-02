@@ -13,4 +13,4 @@ if st.sidebar.button("🚪 Déconnexion"):
     st.session_state["username"] = None
     st.rerun()
 st.title("Gestion des paramètres")
-st.bar_chart()
+st.chat_message("ai")
