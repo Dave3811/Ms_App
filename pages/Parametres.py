@@ -7,4 +7,9 @@ if not check_password():
 
 # Affichage de la connexion
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
+
+if st.sidebar.button("🚪 Déconnexion"):
+    st.session_state["auth_ok"] = False
+    st.session_state["username"] = None
+    st.rerun()
 st.title("Gestion des paramètres")

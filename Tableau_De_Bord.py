@@ -12,6 +12,12 @@ from Utils.Auth import check_password
 if not check_password():
     st.stop()
 
+st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
+
+if st.sidebar.button("🚪 Déconnexion"):
+    st.session_state["auth_ok"] = False
+    st.session_state["username"] = None
+    st.rerun()
 init_db()
 
 st.title("📊 Tableau de bord")
