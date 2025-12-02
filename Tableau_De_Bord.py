@@ -19,6 +19,7 @@ if not check_password():
 st.title("🏠 Tableau de bord M&S")
 
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
+st.write(st.secrets["gcp_service_account"]["client_email"])
 
 st.success("✅ Connexion M&S active")
 st.info("Les fichiers seront sauvegardés automatiquement dans le Drive M&S.")
