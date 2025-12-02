@@ -57,14 +57,15 @@ with st.form("estimation_form"):
         ],
     )
 
+    # Enlever le calcul avec le montant total
     superficie = st.number_input(
         "Superficie totale",
         min_value=0,
         step=10
     )
 
-#TODO
-# Gérer le prix selon la fréquence. 
+# TODO
+# Gérer le prix selon la fréquence.
 # Semaine de mi-mai à mi-octobre
 # Rajouter dans estimations la fréquence de passage (1semaine ou 2semaine)
 
