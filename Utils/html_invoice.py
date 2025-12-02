@@ -4,10 +4,14 @@ import tempfile
 
 def generate_invoice_html(template_path, replacements):
 
-    html = Path(template_path).read_text(encoding="utf-8")
+    # Résout chemin ABSOLU en partant de la racine du projet
+    root = Path(__file__).resolve().parent.parent
+    template_file = root / template_path
 
-    for tag, value in replacements.items():
-        html = html.replace(f"{{{{{tag}}}}}", str(value))
+    html = template_file.read_text(encoding="utf-8")
+
+    for key, value in replacements.items():
+        html = html.replace(f"{{{{{key}}}}}", str(value))
 
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
 
