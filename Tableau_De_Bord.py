@@ -22,14 +22,14 @@ if not check_password():
 st.title("🏠 Tableau de bord M&S")
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
 
+# Forcer login Google
+get_user_credentials()
 
 # Zone de test
 if "google_creds" not in st.session_state:
     login_google()
     st.stop()
 
-# Forcer login Google
-get_user_credentials()
 
 st.title("🧪 Test création fichier")
 
