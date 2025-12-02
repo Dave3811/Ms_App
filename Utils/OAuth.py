@@ -20,10 +20,10 @@ def login_google():
         redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"],
     )
 
-    # Récupération PROPRE des paramètres
+    # Récupération du code OAuth
     code = st.query_params.get("code")
 
-    # ---------- CALLBACK ----------
+    # ----- CALLBACK -----
     if code:
         flow.fetch_token(code=code)
         st.session_state["google_creds"] = flow.credentials
@@ -33,10 +33,10 @@ def login_google():
 
         st.rerun()
 
-    # ---------- LOGIN ----------
+    # ----- LOGIN -----
     auth_url, _ = flow.authorization_url(
         prompt="consent",
-        include_granted_scopes=True,
+        include_granted_scopes="true",
     )
 
     st.link_button("👉 Se connecter à Google", auth_url)
