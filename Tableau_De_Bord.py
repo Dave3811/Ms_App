@@ -51,7 +51,7 @@ for name, status in sections.items():
 
     for e in data:
 
-        # ---------- RÉCUP SÉCURISÉE ----------
+        # ---------- RÉCUP CHAMPS ----------
         estimate_id = safe(e, "id")
         numero = safe(e, "numero")
         client = safe(e, "client")
@@ -61,10 +61,11 @@ for name, status in sections.items():
         montant = safe(e, "montant", 0)
         extras = safe(e, "extras", 0)
         total = safe(e, "total", 0)
+        date_estimation = safe(e, "date")
 
         # ---------- HEADER ----------
-        # PAS de $ dans le titre comme demandé
-        header = f"#{numero} — {client} — {total}"
+        # On affiche MAINTENANT la date au lieu du total
+        header = f"#{numero} — {client} — {date_estimation}"
 
         with st.expander(header):
 
@@ -80,6 +81,9 @@ for name, status in sections.items():
 
             if description:
                 st.write(f"Description : {description}")
+
+            if date_estimation:
+                st.write(f"Date : {date_estimation}")
 
             st.write(f"Montant : {montant} $")
 
