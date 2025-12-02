@@ -101,7 +101,7 @@ with st.form("estimation_form"):
     sous_total = montant + extra_val + FRAIS_DEPLACEMENT
     taxes_calc = sous_total * TAUX_TOTAL
     total = sous_total + taxes_calc
-
+    depot = total * 0.25
     # -------- AFFICHAGE DYNAMIQUE --------
     st.markdown("---")
     st.info(f"🚗 Frais de déplacement : {FRAIS_DEPLACEMENT:.2f}$")
@@ -109,7 +109,7 @@ with st.form("estimation_form"):
     st.write(f"**Sous-total :** {sous_total:.2f}$")
     st.write(f"**Taxes (TPS + TVQ) :** {taxes_calc:.2f}$")
     st.write(f"**TOTAL :** {total:.2f}$")
-    st.write(f"**Dépôt requis (25 %) :** {total * 0.25:.2f}$")
+    st.write(f"**Dépôt requis (25 %) :** {depot:.2f}$")
 
     # -------- DATE --------
     date_estimation = st.date_input(
@@ -160,8 +160,6 @@ if submitted:
 
         "date_estimation": str(date_estimation),
     }
-
-    depot = montant * 0.25
 
     # ==================================================
     # SAVE
