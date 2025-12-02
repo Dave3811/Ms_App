@@ -16,27 +16,8 @@ st.set_page_config(
 if not check_password():
     st.stop()
 
-# ========= AUTH GOOGLE =========
-
-if "google_creds" not in st.session_state:
-    login_google()
-    st.stop()
 
 # ================= INTERFACE =================
 
 st.title("🏠 Tableau de bord M&S")
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
-
-st.success("✅ Connexion Google établie")
-
-# ================= TEST DRIVE =================
-
-st.title("🧪 Test création fichier")
-
-if st.button("Créer fichier vide"):
-    link = create_empty_file("TEST_M_S.txt")
-
-    st.success("✅ Fichier vide créé dans le dossier MS")
-    st.markdown(f"🔗 [Ouvrir le fichier]({link})")
-
-st.info("Les fichiers seront sauvegardés automatiquement dans le Drive M&S.")
