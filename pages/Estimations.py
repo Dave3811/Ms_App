@@ -56,7 +56,7 @@ with st.form("estimation_form"):
             "Autre"
         ],
     )
-    #TODO
+    # TODO
     # Enlever le calcul avec le montant total
     superficie = st.number_input(
         "Superficie totale",
@@ -160,6 +160,8 @@ if submitted:
 
         "date_estimation": str(date_estimation),
     }
+
+    depot = montant * 0.25
 
     # ==================================================
     # SAVE
