@@ -4,7 +4,8 @@ import datetime
 from Utils.Auth import check_password
 from Utils.Sheets import add_estimation
 from Utils.Pdf import generate_estimation_html
-from Utils.Drive import upload_html_user_drive
+from Utils.Drive import upload_html_to_drive
+
 # ---------- AUTH ----------
 if not check_password():
     st.stop()
@@ -55,9 +56,14 @@ with st.form("estimation_form"):
     st.subheader("Extras")
     extra1 = st.checkbox("Taille de haie")
     extra2 = st.checkbox("Découpage")
+
     exdescription = st.text_area("Description des extras")
+
     extra_val = st.number_input(
-        "Montant des extras ($)", min_value=0.00, step=1.00)
+        "Montant des extras ($)",
+        min_value=0.00,
+        step=1.00
+    )
 
     # ---------- CALCULS ----------
     sous_total = montant + extra_val + FRAIS_DEPLACEMENT
@@ -68,7 +74,7 @@ with st.form("estimation_form"):
     st.write(f"**Sous-total :** {sous_total:.2f}$")
     st.write(f"**Taxes :** {taxes_calc:.2f}$")
     st.write(f"**TOTAL :** {total:.2f}$")
-    st.write(f"**Dépôt 25% :** {total*0.25:.2f}$")
+    st.write(f"**Dépôt 25% :** {total * 0.25:.2f}$")
 
     date_estimation = st.date_input("Date", value=datetime.date.today())
 
@@ -79,7 +85,7 @@ with st.form("estimation_form"):
 if submitted:
 
     if not nom_client or not adresse_client:
-        st.error("Nom et adresse obligatoire.")
+        st.error("Nom et adresse obligatoires.")
         st.stop()
 
     numero = f"EST-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -117,11 +123,10 @@ if submitted:
     add_estimation(data)
     st.success("✅ Estimation enregistrée dans Google Sheets")
 
-    # ---------- PDF ----------
+    # ---------- HTML ----------
     html = generate_estimation_html(data)
 
-    html_bytes = html.encode("utf-8")
-
+    # 🡇 Téléchargement local
     st.download_button(
         "📄 Télécharger l'estimation (HTML)",
         html,
@@ -129,10 +134,8 @@ if submitted:
         mime="text/html"
     )
 
-    html = generate_estimation_html(data)
-
-    # Sauvegarde Drive
-    link = upload_html_user_drive(
+    # 🡇 Sauvegarde Drive via SERVICE ACCOUNT
+    link = upload_html_to_drive(
         html,
         filename=f"{numero}.html"
     )
