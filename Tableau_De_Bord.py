@@ -7,6 +7,7 @@ from Utils.Database import (
 )
 from Utils.Auth import check_password
 
+
 # ---------- AUTH ----------
 if not check_password():
     st.stop()
@@ -23,6 +24,22 @@ sections = {
     "❌ Refusées": "REJECTED"
 }
 
+
+def safe(row, key, default=""):
+    """
+    Retourne une valeur sécurisée :
+    - '' si None ou champ manquant
+    - default si inexistant
+    """
+    try:
+        value = row[key]
+        if value is None:
+            return default
+        return value
+    except Exception:
+        return default
+
+
 for name, status in sections.items():
 
     st.subheader(name)
@@ -34,26 +51,58 @@ for name, status in sections.items():
 
     for e in data:
 
-        total = e[-2]   # ✅ total sécurisé
+        # ---------- RÉCUP SÉCURISÉE ----------
+        estimate_id = safe(e, "id")
+        numero = safe(e, "numero")
+        client = safe(e, "client")
+        adresse = safe(e, "adresse")
+        service = safe(e, "service")
+        description = safe(e, "description")
+        montant = safe(e, "montant", 0)
+        extras = safe(e, "extras", 0)
+        total = safe(e, "total", 0)
 
-        with st.expander(f"#{e[1]} — {e[3]} — {total} $"):
+        # ---------- HEADER ----------
+        # PAS de $ dans le titre comme demandé
+        header = f"#{numero} — {client} — {total}"
 
-            st.write(f"Client : {e[3]}")
-            st.write(f"Adresse : {e[4]}")
-            st.write(f"Service : {e[7]}")
-            st.write(f"Description : {e[9]}")
-            st.write(f"Montant : {e[10]} $")
-            st.write(f"Extras : {e[11] or ''} / {e[12] or ''}")
-            st.write(f"Total : {total} $")  # ✅ plus de crash
+        with st.expander(header):
 
+            # ---------- INFOS ----------
+            if client:
+                st.write(f"Client : {client}")
+
+            if adresse:
+                st.write(f"Adresse : {adresse}")
+
+            if service:
+                st.write(f"Service : {service}")
+
+            if description:
+                st.write(f"Description : {description}")
+
+            st.write(f"Montant : {montant} $")
+
+            if extras:
+                st.write(f"Extras : {extras} $")
+
+            st.write(f"Total : {total} $")
+
+            # ---------- ACTIONS ----------
             if status == "PENDING":
 
                 col1, col2 = st.columns(2)
 
-                if col1.button("✅ Accepter", key=f"ok_{e[0]}"):
-                    update_status(e[0], "APPROVED")
+                if col1.button(
+                    "✅ Accepter",
+                    key=f"ok_{estimate_id}"
+                ):
+                    update_status(estimate_id, "APPROVED")
                     st.rerun()
 
-                if col2.button("❌ Refuser", key=f"no_{e[0]}"):
-                    update_status(e[0], "REJECTED")
+                if col2.button(
+                    "❌ Refuser",
+                    key=f"no_{estimate_id}"
+                ):
+                    update_status(estimate_id, "REJECTED")
                     st.rerun()

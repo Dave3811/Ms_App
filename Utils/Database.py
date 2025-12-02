@@ -3,10 +3,14 @@ import sqlite3
 DB_FILE = "estimations.db"
 
 
+# ---------- CONNEXION ----------
 def get_conn():
-    return sqlite3.connect(DB_FILE, check_same_thread=False)
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    conn.row_factory = sqlite3.Row  # 🔒 renvoie des dictionnaires au lieu de tuples
+    return conn
 
 
+# ---------- INIT DB ----------
 def init_db():
     conn = get_conn()
     c = conn.cursor()
@@ -35,37 +39,69 @@ def init_db():
     conn.close()
 
 
+# ---------- INSERT ----------
 def add_estimation(data):
     conn = get_conn()
     c = conn.cursor()
 
     c.execute("""
         INSERT INTO estimations (
-            numero, utilisateur, client, adresse, telephone, courriel,
-            service, superficie, description, montant, taxes, total, date, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            numero,
+            utilisateur,
+            client,
+            adresse,
+            telephone,
+            courriel,
+            service,
+            superficie,
+            description,
+            montant,
+            taxes,
+            total,
+            date,
+            status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        data["numero"], data["utilisateur"], data["client"], data["adresse"],
-        data["telephone"], data["couriel"], data["service"], data["superficie"],
-        data["description"], data["montant"], data["taxes"], data["total"],
-        data["date_estimation"], "PENDING"
+        data.get("numero"),
+        data.get("utilisateur"),
+        data.get("client"),
+        data.get("adresse"),
+        data.get("telephone"),
+        data.get("courriel"),
+        data.get("service"),
+        data.get("superficie"),
+        data.get("description"),
+        data.get("montant"),
+        data.get("taxes"),
+        data.get("total"),
+        data.get("date_estimation"),
+        "PENDING"
     ))
 
     conn.commit()
     conn.close()
 
 
+# ---------- SELECT ----------
 def get_estimations(status):
     conn = get_conn()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM estimations WHERE status=?", (status,))
-    results = c.fetchall()
+    c.execute("""
+        SELECT *
+        FROM estimations
+        WHERE status = ?
+        ORDER BY date DESC
+    """, (status,))
 
+    results = c.fetchall()
     conn.close()
+
     return results
 
 
+# ---------- UPDATE STATUS ----------
 def update_status(estimation_id, new_status):
     conn = get_conn()
     c = conn.cursor()
@@ -74,7 +110,10 @@ def update_status(estimation_id, new_status):
         UPDATE estimations
         SET status = ?
         WHERE id = ?
-    """, (new_status, estimation_id))
+    """, (
+        new_status,
+        estimation_id
+    ))
 
     conn.commit()
     conn.close()
