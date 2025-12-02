@@ -3,6 +3,7 @@ import streamlit as st
 from Utils.Database import (
     get_estimations,
     update_status,
+    delete_estimation,
     init_db
 )
 from Utils.Auth import check_password
@@ -64,7 +65,6 @@ for name, status in sections.items():
         date_estimation = safe(e, "date")
 
         # ---------- HEADER ----------
-        # On affiche MAINTENANT la date au lieu du total
         header = f"#{numero} — {client} — {date_estimation}"
 
         with st.expander(header):
@@ -109,4 +109,20 @@ for name, status in sections.items():
                     key=f"no_{estimate_id}"
                 ):
                     update_status(estimate_id, "REJECTED")
+                    st.rerun()
+
+            elif status == "REJECTED":
+
+                st.warning("⚠️ Cette facture est refusée")
+
+                confirm = st.checkbox(
+                    "Je confirme vouloir supprimer définitivement cette facture",
+                    key=f"confirm_{estimate_id}"
+                )
+
+                if confirm and st.button(
+                    "🗑️ SUPPRIMER DÉFINITIVEMENT",
+                    key=f"del_{estimate_id}"
+                ):
+                    delete_estimation(estimate_id)
                     st.rerun()
