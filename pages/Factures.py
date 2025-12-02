@@ -48,9 +48,11 @@ for f in factures:
     date = safe(f, "date")
     desc = safe(f, "description")
     service = safe(f, "service")
-    montant = safe(f, "montant", 0)
-    taxes = safe(f, "taxes", 0)
-    total = safe(f, "total", 0)
+
+    # --- cast en float pour formatage ---
+    montant = float(safe(f, "montant", 0))
+    taxes = float(safe(f, "taxes", 0))
+    total = float(safe(f, "total", 0))
 
     header = f"{invoice} — {client} — {date}"
 
@@ -63,12 +65,13 @@ for f in factures:
         if desc:
             st.write(f"Description : {desc}")
 
-        st.write(f"Montant : {montant} $")
+        st.write(f"Montant : {montant:.2f} $")
 
         if taxes:
-            st.write(f"Taxes / Extras : {taxes} $")
+            st.write(f"Taxes / Extras : {taxes:.2f} $")
 
-        st.write(f"Total : {total} $")
+        st.write(f"Total : {total:.2f} $")
+
 
         # ---------- TÉLÉCHARGEMENT HTML ----------
         replacements = {
@@ -77,13 +80,15 @@ for f in factures:
             "adresse": adresse,
             "service": service,
             "description": desc,
-            "montant": montant,
-            "extras": taxes,
-            "total": total,
+
+            # ✅ valeurs formatées à 2 décimales
+            "montant": f"{montant:.2f}",
+            "extras": f"{taxes:.2f}",
+            "total": f"{total:.2f}",
+
             "date": date,
 
-            # INFOS ENTREPRISE (déjà dans ton template côté HTML)
-            "logo_path": "assets/logo.png",
+            # INFOS ENTREPRISE
             "entreprise_nom": "M&S Déneigement & Gazon",
         }
 
