@@ -6,6 +6,7 @@ from Utils.Database import (
     delete_estimation,
     init_db
 )
+
 from Utils.Auth import check_password
 
 
@@ -21,108 +22,81 @@ st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
 
 sections = {
     "🕒 En attente": "PENDING",
-    "✅ Acceptées": "APPROVED",
+    "✅ Acceptées (factures)": "APPROVED",
     "❌ Refusées": "REJECTED"
 }
 
 
 def safe(row, key, default=""):
-    """
-    Retourne une valeur sécurisée :
-    - '' si None ou champ manquant
-    - default si inexistant
-    """
     try:
-        value = row[key]
-        if value is None:
-            return default
-        return value
-    except Exception:
+        val = row[key]
+        return default if val is None else val
+    except:
         return default
 
 
-for name, status in sections.items():
+for title, status in sections.items():
 
-    st.subheader(name)
-    data = get_estimations(status)
+    st.subheader(title)
+    rows = get_estimations(status)
 
-    if not data:
-        st.info("Aucune estimation.")
+    if not rows:
+        st.info("Aucune entrée")
         continue
 
-    for e in data:
+    for e in rows:
 
-        # ---------- RÉCUP CHAMPS ----------
         estimate_id = safe(e, "id")
         numero = safe(e, "numero")
+        facture_num = safe(e, "facture_numero")
         client = safe(e, "client")
-        adresse = safe(e, "adresse")
+        date = safe(e, "date")
+        desc = safe(e, "description")
         service = safe(e, "service")
-        description = safe(e, "description")
         montant = safe(e, "montant", 0)
-        extras = safe(e, "extras", 0)
+        extras = safe(e, "taxes", 0)
         total = safe(e, "total", 0)
-        date_estimation = safe(e, "date")
 
-        # ---------- HEADER ----------
-        header = f"#{numero} — {client} — {date_estimation}"
+        header = f"#{numero} — {client} — {date}"
 
         with st.expander(header):
 
-            # ---------- INFOS ----------
-            if client:
-                st.write(f"Client : {client}")
+            st.write(f"Client : {client}")
 
-            if adresse:
-                st.write(f"Adresse : {adresse}")
+            if facture_num:
+                st.success(f"Facture #: {facture_num}")
 
-            if service:
-                st.write(f"Service : {service}")
+            if desc:
+                st.write(f"Description : {desc}")
 
-            if description:
-                st.write(f"Description : {description}")
-
-            if date_estimation:
-                st.write(f"Date : {date_estimation}")
-
+            st.write(f"Service : {service}")
             st.write(f"Montant : {montant} $")
 
             if extras:
-                st.write(f"Extras : {extras} $")
+                st.write(f"Extras / taxes : {extras} $")
 
             st.write(f"Total : {total} $")
 
-            # ---------- ACTIONS ----------
             if status == "PENDING":
 
                 col1, col2 = st.columns(2)
 
-                if col1.button(
-                    "✅ Accepter",
-                    key=f"ok_{estimate_id}"
-                ):
+                if col1.button("✅ Accepter", key=f"ok_{estimate_id}"):
                     update_status(estimate_id, "APPROVED")
+                    st.success("Facture créée")
                     st.rerun()
 
-                if col2.button(
-                    "❌ Refuser",
-                    key=f"no_{estimate_id}"
-                ):
+                if col2.button("❌ Refuser", key=f"no_{estimate_id}"):
                     update_status(estimate_id, "REJECTED")
                     st.rerun()
 
             elif status == "REJECTED":
 
-                st.warning("⚠️ Cette facture est refusée")
-
                 confirm = st.checkbox(
-                    "Je confirme vouloir supprimer définitivement cette facture",
-                    key=f"confirm_{estimate_id}"
+                    "Confirmer suppression",
+                    key=f"conf_{estimate_id}"
                 )
 
-                if confirm and st.button(
-                    "🗑️ SUPPRIMER DÉFINITIVEMENT",
-                    key=f"del_{estimate_id}"
-                ):
+                if confirm and st.button("🗑️ Supprimer", key=f"del_{estimate_id}"):
                     delete_estimation(estimate_id)
                     st.rerun()

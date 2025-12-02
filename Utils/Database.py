@@ -6,7 +6,7 @@ DB_FILE = "estimations.db"
 # ---------- CONNEXION ----------
 def get_conn():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    conn.row_factory = sqlite3.Row  # Accès par noms de colonnes
+    conn.row_factory = sqlite3.Row
     return conn
 
 
@@ -31,6 +31,7 @@ def init_db():
             taxes REAL,
             total REAL,
             date TEXT,
+            facture_numero TEXT,
             status TEXT DEFAULT 'PENDING'
         )
     """)
@@ -95,25 +96,57 @@ def get_estimations(status):
         ORDER BY date DESC
     """, (status,))
 
-    results = c.fetchall()
+    rows = c.fetchall()
     conn.close()
 
-    return results
+    return rows
 
 
-# ---------- UPDATE STATUS ----------
-def update_status(estimation_id, new_status):
+def get_factures():
     conn = get_conn()
     c = conn.cursor()
 
     c.execute("""
-        UPDATE estimations
-        SET status = ?
-        WHERE id = ?
-    """, (
-        new_status,
-        estimation_id
-    ))
+        SELECT *
+        FROM estimations
+        WHERE status = 'APPROVED'
+        ORDER BY date DESC
+    """)
+
+    rows = c.fetchall()
+    conn.close()
+
+    return rows
+
+
+# ---------- STATUS / FACTURE ----------
+def update_status(estimation_id, new_status):
+    conn = get_conn()
+    c = conn.cursor()
+
+    if new_status == "APPROVED":
+
+        facture_num = f"FCT-{estimation_id:06d}"
+
+        c.execute("""
+            UPDATE estimations
+            SET status = ?, facture_numero = ?
+            WHERE id = ?
+        """, (
+            new_status,
+            facture_num,
+            estimation_id
+        ))
+
+    else:
+        c.execute("""
+            UPDATE estimations
+            SET status = ?
+            WHERE id = ?
+        """, (
+            new_status,
+            estimation_id
+        ))
 
     conn.commit()
     conn.close()
