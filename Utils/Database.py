@@ -6,7 +6,7 @@ DB_FILE = "estimations.db"
 # ---------- CONNEXION ----------
 def get_conn():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    conn.row_factory = sqlite3.Row  # 🔒 renvoie des dictionnaires au lieu de tuples
+    conn.row_factory = sqlite3.Row  # Accès par noms de colonnes
     return conn
 
 
@@ -114,6 +114,20 @@ def update_status(estimation_id, new_status):
         new_status,
         estimation_id
     ))
+
+    conn.commit()
+    conn.close()
+
+
+# ---------- DELETE ----------
+def delete_estimation(estimation_id):
+    conn = get_conn()
+    c = conn.cursor()
+
+    c.execute("""
+        DELETE FROM estimations
+        WHERE id = ?
+    """, (estimation_id,))
 
     conn.commit()
     conn.close()
