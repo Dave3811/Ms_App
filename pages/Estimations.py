@@ -131,10 +131,3 @@ if submitted:
         file_name=f"{numero}.html",
         mime="text/html"
     )
-
-    link = upload_html_to_drive(
-        html=html,
-        filename=f"{numero}.html"
-    )
-
-    st.markdown(f"📁 [Ouvrir le fichier]({link})")
