@@ -11,6 +11,9 @@ def upload_html_user_drive(html: str, filename: str):
     # Récupérer les credentials OAuth de l'utilisateur connecté
     creds = get_user_credentials()
 
+    if not creds:
+        raise Exception("Utilisateur non authentifié avec Google Drive.")
+
     # Créer le service Google Drive
     service = build("drive", "v3", credentials=creds)
 

@@ -17,16 +17,25 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
 def handle_oauth():
+    """
+    Gère tout le cycle OAuth :
+    - Première connexion : affiche le bouton Google
+    - Retour de Google (?code=...) : échange le code contre un token
+    - Si déjà connecté : retourne directement les credentials
+    """
 
-    # Déjà connecté ?
+    # Déjà connecté → on reconstruit les creds et on sort
     if "google_creds" in st.session_state:
-        return True
+        return Credentials.from_authorized_user_info(
+            st.session_state["google_creds"],
+            SCOPES
+        )
 
     params = st.experimental_get_query_params()
 
-    # --------- CALLBACK GOOGLE ---------
+    # --------- RETOUR DE GOOGLE ---------
     if "code" in params:
-
+        # On recrée un flow avec le même state que lors du départ
         flow = Flow.from_client_config(
             {
                 "web": {
@@ -38,31 +47,37 @@ def handle_oauth():
                 }
             },
             scopes=SCOPES,
-            redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"]
+            redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"],
+            state=st.session_state.get("oauth_state")
         )
 
-        # Échange du code contre un token
-        flow.fetch_token(code=params["code"][0])
+        try:
+            # Échange du code contre un token
+            flow.fetch_token(code=params["code"][0])
+        except Exception as e:
+            st.error("❌ Erreur pendant la validation OAuth (fetch_token).")
+            st.write("Message technique :", str(e))
+            st.stop()
 
         creds = flow.credentials
 
-        # Sauvegarde du token en session
+        # Sauvegarde du token en session (format sérialisable)
         st.session_state["google_creds"] = {
             "token": creds.token,
             "refresh_token": creds.refresh_token,
             "token_uri": creds.token_uri,
             "client_id": creds.client_id,
             "client_secret": creds.client_secret,
-            "scopes": creds.scopes,
+            "scopes": list(creds.scopes) if creds.scopes else [],
         }
 
-        # Nettoyer l'URL
+        # Nettoyer l'URL (enlever ?code=...&state=...)
         st.experimental_set_query_params()
 
         # Recharge propre
         st.rerun()
 
-    # --------- PREMIÈRE CONNEXION ---------
+    # --------- PREMIÈRE CONNEXION (PAS DE CODE, PAS DE CREDS) ---------
 
     flow = Flow.from_client_config(
         {
@@ -78,18 +93,22 @@ def handle_oauth():
         redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"]
     )
 
-    auth_url, _ = flow.authorization_url(
+    auth_url, state = flow.authorization_url(
         access_type="offline",
-        prompt="consent"
+        prompt="consent",
+        include_granted_scopes="true"
     )
+
+    # On garde le state pour le callback
+    st.session_state["oauth_state"] = state
 
     st.link_button("🔐 Se connecter à Google", auth_url)
     st.stop()
 
+
 # ================= EXEC OAUTH =================
 
-
-handle_oauth()
+creds = handle_oauth()  # creds = Credentials Google Drive
 
 # ========= AUTH INTERNE APP =========
 
@@ -101,6 +120,9 @@ if not check_password():
 st.title("🏠 Tableau de bord M&S")
 st.sidebar.write(f"👤 Connecté : {st.session_state['username']}")
 
-st.success("✅ Google Drive connecté")
+if creds:
+    st.success("✅ Google Drive connecté")
+else:
+    st.warning("⚠️ Problème de connexion Google Drive")
 
 st.info("Utilise le menu de gauche pour naviguer.")
