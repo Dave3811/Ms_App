@@ -17,25 +17,26 @@ def login_google():
             }
         },
         scopes=SCOPES,
-        redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"]
+        redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"],
     )
 
-    qp = st.query_params
+    # Récupération PROPRE des paramètres
+    code = st.query_params.get("code")
 
-    # ---- CALLBACK ----
-    if "code" in qp:
-        flow.fetch_token(code=qp["code"][0])
+    # ---------- CALLBACK ----------
+    if code:
+        flow.fetch_token(code=code)
         st.session_state["google_creds"] = flow.credentials
 
-        # Nettoie l'URL
+        # Nettoyage de l'URL
         st.query_params.clear()
 
         st.rerun()
 
-    # ---- LOGIN ----
+    # ---------- LOGIN ----------
     auth_url, _ = flow.authorization_url(
         prompt="consent",
-        include_granted_scopes=True
+        include_granted_scopes=True,
     )
 
     st.link_button("👉 Se connecter à Google", auth_url)
