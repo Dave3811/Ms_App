@@ -35,7 +35,8 @@ for name, status in sections.items():
 
     for e in data:
 
-        with st.expander(f"#{e[1]} — {e[3]} — {e[17]} $"):
+        total = e[-2]   # avant-dernier champ = total
+        with st.expander(f"#{e[1]} — {e[3]} — {total} $"):
 
             st.write(f"Client : {e[3]}")
             st.write(f"Adresse : {e[4]}")
