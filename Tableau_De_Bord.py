@@ -24,18 +24,18 @@ def handle_oauth():
     - Si déjà connecté : retourne directement les credentials
     """
 
-    # Déjà connecté → on reconstruit les creds et on sort
+    # Déjà connecté
     if "google_creds" in st.session_state:
         return Credentials.from_authorized_user_info(
             st.session_state["google_creds"],
             SCOPES
         )
 
-    params = st.experimental_get_query_params()
+    params = st.query_params
 
     # --------- RETOUR DE GOOGLE ---------
     if "code" in params:
-        # On recrée un flow avec le même state que lors du départ
+
         flow = Flow.from_client_config(
             {
                 "web": {
@@ -52,8 +52,7 @@ def handle_oauth():
         )
 
         try:
-            # Échange du code contre un token
-            flow.fetch_token(code=params["code"][0])
+            flow.fetch_token(code=params["code"])
         except Exception as e:
             st.error("❌ Erreur pendant la validation OAuth (fetch_token).")
             st.write("Message technique :", str(e))
@@ -61,7 +60,7 @@ def handle_oauth():
 
         creds = flow.credentials
 
-        # Sauvegarde du token en session (format sérialisable)
+        # Sauvegarde du token en session
         st.session_state["google_creds"] = {
             "token": creds.token,
             "refresh_token": creds.refresh_token,
@@ -71,13 +70,13 @@ def handle_oauth():
             "scopes": list(creds.scopes) if creds.scopes else [],
         }
 
-        # Nettoyer l'URL (enlever ?code=...&state=...)
-        st.experimental_set_query_params()
+        # Nettoyage de l'URL
+        st.query_params.clear()
 
         # Recharge propre
         st.rerun()
 
-    # --------- PREMIÈRE CONNEXION (PAS DE CODE, PAS DE CREDS) ---------
+    # --------- PREMIÈRE CONNEXION ---------
 
     flow = Flow.from_client_config(
         {
@@ -99,16 +98,15 @@ def handle_oauth():
         include_granted_scopes="true"
     )
 
-    # On garde le state pour le callback
     st.session_state["oauth_state"] = state
 
     st.link_button("🔐 Se connecter à Google", auth_url)
     st.stop()
 
-
 # ================= EXEC OAUTH =================
 
-creds = handle_oauth()  # creds = Credentials Google Drive
+
+creds = handle_oauth()
 
 # ========= AUTH INTERNE APP =========
 

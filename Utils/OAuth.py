@@ -6,22 +6,31 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
 def get_user_credentials():
+    """
+    Gère TOUT le cycle OAuth Google pour Streamlit Cloud :
+      - Restaure la session existante
+      - Intercepte la callback (?code=...)
+      - Échange le code contre un token
+      - Démarre l'auth si nécessaire
+
+    Retourne un objet Credentials valide ou bloque l'app.
+    """
 
     # --------------------------------------------------
-    # 1) Si déjà connecté → retourner les credentials
+    # 1) SI SESSION EXISTANTE
     # --------------------------------------------------
-    if st.session_state.get("user_creds"):
+    if "user_creds" in st.session_state:
         return Credentials.from_authorized_user_info(
             st.session_state["user_creds"],
             SCOPES
         )
 
     # --------------------------------------------------
-    # 2) Est-ce un retour OAuth ?
+    # 2) CALLBACK GOOGLE
     # --------------------------------------------------
-    params = st.experimental_get_query_params()
+    params = st.query_params
 
-    if "code" in params and "state" in params:
+    if "code" in params:
 
         flow = Flow.from_client_config(
             {
@@ -34,39 +43,38 @@ def get_user_credentials():
                 }
             },
             scopes=SCOPES,
-            redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"]
+            redirect_uri=st.secrets["OAUTH"]["REDIRECT_URI"],
+            state=st.session_state.get("oauth_state")
         )
 
         try:
-            flow.fetch_token(code=params["code"][0])
+            flow.fetch_token(code=params["code"])
 
         except Exception as e:
-            st.error("Erreur OAuth : impossible d'obtenir le token.")
+            st.error("❌ Erreur OAuth : impossible d'obtenir le token")
             st.exception(e)
             st.stop()
 
         creds = flow.credentials
 
-        # Sauvegarde en session
+        # --------------------------------------------------
+        # SAUVEGARDE SESSION
+        # --------------------------------------------------
         st.session_state["user_creds"] = {
             "token": creds.token,
             "refresh_token": creds.refresh_token,
             "token_uri": creds.token_uri,
             "client_id": creds.client_id,
             "client_secret": creds.client_secret,
-            "scopes": creds.scopes,
+            "scopes": list(creds.scopes) if creds.scopes else [],
         }
 
-        # Nettoyage de l'URL
-        st.experimental_set_query_params()
-
-        return Credentials.from_authorized_user_info(
-            st.session_state["user_creds"],
-            SCOPES
-        )
+        # Nettoyage de l’URL
+        st.query_params.clear()
+        st.rerun()
 
     # --------------------------------------------------
-    # 3) Démarrer l'auth Google
+    # 3) PREMIÈRE CONNEXION
     # --------------------------------------------------
     flow = Flow.from_client_config(
         {
@@ -84,13 +92,11 @@ def get_user_credentials():
 
     auth_url, state = flow.authorization_url(
         prompt="consent",
-        access_type="offline"
+        access_type="offline",
+        include_granted_scopes="true"
     )
 
     st.session_state["oauth_state"] = state
 
-    st.markdown(
-        f"### 🔐 Connexion Google\n\n👉 [Se connecter à Google]({auth_url})"
-    )
-
+    st.link_button("🔐 Se connecter à Google", auth_url)
     st.stop()
